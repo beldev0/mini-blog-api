@@ -56,4 +56,4 @@ const userRepository = {
 }
 
 
-module.exports = { userRepository }
+module.exports =  userRepository
