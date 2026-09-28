@@ -5,7 +5,7 @@ const postValidator = {
         title : z.string().min(8, "Title is too short"),
         body: z.string().min(255, "255 characters is minimum required"),
         published: z.boolean().optional(),
-        user_id : z.int().positive("ID can't be negative")
+        user_id : z.int("User ID is required").positive("ID can't be negative")
     }),
 
     update : z.object({
