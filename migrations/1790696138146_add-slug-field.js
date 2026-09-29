@@ -1,0 +1,27 @@
+/**
+ * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
+ */
+export const shorthands = undefined;
+
+/**
+ * @param pgm {import('node-pg-migrate').MigrationBuilder}
+ * @param run {() => void | undefined}
+ * @returns {Promise<void> | void}
+ */
+export const up = (pgm) => {
+    pgm.sql(`
+        ALTER TABLE posts ADD COLUMN slug TEXT;
+        UPDATE posts SET slug = LOWER(REPLACE(title, '', '-'));
+        ALTER TABLE posts ALTER COLUMN slug SET NOT NULL;
+    `)
+
+};
+
+/**
+ * @param pgm {import('node-pg-migrate').MigrationBuilder}
+ * @param run {() => void | undefined}
+ * @returns {Promise<void> | void}
+ */
+export const down = (pgm) => {
+    pgm.sql("ALTER TABLE posts DROP COLUMN slug;")
+};
