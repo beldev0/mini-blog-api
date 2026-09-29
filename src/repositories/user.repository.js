@@ -14,10 +14,10 @@ const userRepository = {
         return result.rows[0] ?? null
     },
 
-    createUser: async ({ email, username }) => {
+    createUser: async ({ email, username, password }) => {
         const result = await pool.query(`
-            INSERT INTO users (email, username) VALUES ($1, $2) RETURNING id, email, username, created_at
-        `, [email, username])
+            INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING id, email, username, created_at
+        `, [email, username, password])
         return result.rows[0]
     },
 
@@ -41,7 +41,7 @@ const userRepository = {
 
     getUserByEmail: async (email) => {
         const result = await pool.query(`
-            SELECT id, email, username, created_at
+            SELECT id, email, username, created_at, password
             FROM users
             WHERE email = $1`, [email])
         
