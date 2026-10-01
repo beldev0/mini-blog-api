@@ -1,7 +1,6 @@
 function authControllerFactory(authService) {
     return {
         register: async (req, res, next) => {
-            // console.log(req.body);
 
             try {
                 const { refreshToken, ...data } = await authService.register(req.body, req.ip)
@@ -35,8 +34,7 @@ function authControllerFactory(authService) {
         refresh: async (req, res, next) => {
             try {
                 let oldRefresh = req.cookies?.refreshToken
-                console.log(oldRefresh);
-                
+
                 if (!oldRefresh) {
                     return res.status(401).json({ "success": false, error: ["Include cookies !"] })
                 }
@@ -54,6 +52,26 @@ function authControllerFactory(authService) {
                     sameSite: 'Lax'
                 })
                 res.json({ "success": true, data: { accessToken } })
+            } catch (err) {
+                next(err)
+            }
+        },
+
+        logout: async (req, res, next) => {
+            try {
+                let oldRefresh = req.cookies?.refreshToken
+                if (!oldRefresh) {
+                    return res.status(401).json({ "success": false, error: ["Include cookies !"] })
+                }
+
+                const successLogout = await authService.logout(oldRefresh)
+                if (successLogout) {
+                    res.clearCookie('refreshToken')
+                    return res.json({ "success": true, message: "Successfully logout !" })
+                }
+                res.clearCookie('refreshToken')
+                return res.json({ "success": false, error: ["Invalid refresh token given"] })
+
             } catch (err) {
                 next(err)
             }
