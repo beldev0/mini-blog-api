@@ -40,7 +40,7 @@ function userControllerFactory(userService) {
         },
 
         getAllUsers : async (req, res, next) => {
-            try {   
+            try {                  
                 const users = await userService.getAllUsers()
                 return res.json({"success":true, data:users})
             } catch (err) {
@@ -48,9 +48,9 @@ function userControllerFactory(userService) {
             }
         },
 
-        getUserById : async (req, res, next) => {
+        getUserById : async (req, res, next) => {            
             try {
-                const user = await userService.getUserById(req.params.id)
+                const user = await userService.getUserById(req.params.id || req.user.id)
                 if(user) {
                     return res.status(200).json({"success":true, data:[user]})
                 }
