@@ -15,5 +15,6 @@ const authController = authControllerFactory(authService)
 router.post('/register', validatorMiddleware(userValidation.create) ,authController.register)
 router.post('/login',validatorMiddleware(userValidation.login), authController.login )
 router.post('/refresh', authController.refresh)
+router.post('/logout', authController.logout)
 
 module.exports = router
