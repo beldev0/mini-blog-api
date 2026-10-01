@@ -2,6 +2,7 @@ const path = require('path')
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') })
 
 const expres = require('express')
+const cookieParser = require('cookie-parser')
 const userRouteHandler = require('./routes/user.routes.js')
 const postRouteHandler = require('./routes/post.routes.js')
 const commentRouteHandler = require ('./routes/comment.route.js')
@@ -9,6 +10,7 @@ const authRouteHandler = require('./routes/auth.route.js')
 const globalErrorHandler = require('./middlewares/error.middleware.js')
 const app = expres()
 
+app.use(cookieParser())
 app.use(expres.json())
 
 app.use('/users', userRouteHandler)
