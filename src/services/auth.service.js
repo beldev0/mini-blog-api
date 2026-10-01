@@ -69,6 +69,20 @@ function authServiceFactory(userRepository, refreshTokenRepository) {
             const accessToken = jwtUtils.generateAccessToken(payload)
             return { 'success': true, accessToken, refreshToken }
 
+        }, 
+
+        logout : async(token) => {
+            const tokenLine = await refreshTokenRepository.getTokenLine(jwtUtils.hashToken(token))
+            
+            if (!tokenLine) {
+                return null
+            }
+            if (tokenLine.revokedat) {
+                return null
+            }
+
+            const delCount = await refreshTokenRepository.revokedToken(tokenLine.id)
+            return delCount
         }
 
     }
