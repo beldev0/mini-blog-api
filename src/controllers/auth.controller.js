@@ -1,24 +1,62 @@
 function authControllerFactory(authService) {
     return {
-        register : async (req, res, next) => {
+        register: async (req, res, next) => {
             // console.log(req.body);
-            
-            try {   
-                const user = await authService.register(req.body)
-                console.log(user);
-                
-                return res.status(201).json({"success":true, data:user})
-            } catch(err) { next(err) }
+
+            try {
+                const { refreshToken, ...data } = await authService.register(req.body, req.ip)
+                res.cookie('refreshToken', refreshToken, {
+                    maxAge: 1000 * 60 * 60 * 24 * 7,
+                    secure: process.env.ENVIRONNEMENT == 'production',
+                    httpOnly: true,
+                    sameSite: 'Lax'
+                })
+                return res.status(201).json({ "success": true, data: data })
+            } catch (err) { next(err) }
         },
 
-        login : async (req, res, next) => {
+        login: async (req, res, next) => {
             try {
-                const user = await authService.login(req.body)
-                if(user) {
-                    return res.json({"success":true, data:[user]})
+                const result = await authService.login(req.body, req.ip)
+                if (result) {
+                    const { refreshToken, ...data } = result
+                    res.cookie('refreshToken', refreshToken, {
+                        maxAge: 1000 * 60 * 60 * 24 * 7,
+                        secure: process.env.ENVIRONNEMENT == 'production',
+                        httpOnly: true,
+                        sameSite: 'Lax'
+                    })
+                    return res.json({ "success": true, data: [data] })
                 }
-                return res.status(400).json({"success":false, error:["Invalid credentials"]})
+                return res.status(400).json({ "success": false, error: ["Invalid credentials"] })
             } catch (err) { next(err) }
+        },
+
+        refresh: async (req, res, next) => {
+            try {
+                let oldRefresh = req.cookies?.refreshToken
+                console.log(oldRefresh);
+                
+                if (!oldRefresh) {
+                    return res.status(401).json({ "success": false, error: ["Include cookies !"] })
+                }
+
+                const result = await authService.refresh(oldRefresh, req.ip)
+
+                if (!result.success) {
+                    return res.status(401).json({ "success": false, error: [result.error] })
+                }
+                const { refreshToken, accessToken } = result
+                res.cookie('refreshToken', refreshToken, {
+                    maxAge: 1000 * 60 * 60 * 24 * 7,
+                    secure: process.env.ENVIRONNEMENT == 'production',
+                    httpOnly: true,
+                    sameSite: 'Lax'
+                })
+                res.json({ "success": true, data: { accessToken } })
+            } catch (err) {
+                next(err)
+            }
         }
     }
 }
